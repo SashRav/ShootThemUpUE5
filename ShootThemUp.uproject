@@ -3,6 +3,16 @@
 	"EngineAssociation": "{E30820B9-42F8-C70F-0014-0D97588288CB}",
 	"Category": "",
 	"Description": "",
+	"Modules": [
+		{
+			"Name": "ShootThemUp",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	],
 	"Plugins": [
 		{
 			"Name": "ModelingToolsEditorMode",
