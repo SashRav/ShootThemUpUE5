@@ -6,9 +6,10 @@
 #include "GameFramework/Character.h"
 #include "STUBaseCharacter.generated.h"
 
-class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+class UCameraComponent;
+class USpringArmComponent;
 struct FInputActionValue;
 
 UCLASS()
@@ -24,6 +25,10 @@ class SHOOTTHEMUP_API ASTUBaseCharacter : public ACharacter
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
     UInputAction* MoveAction;
 
+    // Input Action for player looking
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+    UInputAction* LookAction;
+
 public:
     // Sets default values for this character's properties
     ASTUBaseCharacter();
@@ -31,16 +36,19 @@ public:
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UCameraComponent* CameraComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    USpringArmComponent* SpringArmComponent;
+
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
     // Called when moving action is triggered
     void Move(const FInputActionValue& Value);
 
-public:
-    // Called every frame
-    // virtual void Tick(float DeltaTime) override;
+    void Look(const FInputActionValue& Value);
 
+public:
     // Called to bind functionality to input
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };
