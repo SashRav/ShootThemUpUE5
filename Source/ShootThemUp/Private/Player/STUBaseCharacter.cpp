@@ -15,7 +15,7 @@ ASTUBaseCharacter::ASTUBaseCharacter()
 
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
     SpringArmComponent->SetupAttachment(GetRootComponent());
-    SpringArmComponent->TargetArmLength = 400.0f;
+    SpringArmComponent->TargetArmLength = 300.0f;
     SpringArmComponent->bUsePawnControlRotation = true;
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
