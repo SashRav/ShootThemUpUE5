@@ -29,6 +29,10 @@ class SHOOTTHEMUP_API ASTUBaseCharacter : public ACharacter
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
     UInputAction* LookAction;
 
+    // Input Action for player jumping
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+    UInputAction* JumpAction;
+
 public:
     // Sets default values for this character's properties
     ASTUBaseCharacter();
@@ -45,7 +49,6 @@ protected:
 
     // Called when moving action is triggered
     void Move(const FInputActionValue& Value);
-
     void Look(const FInputActionValue& Value);
 
 public:

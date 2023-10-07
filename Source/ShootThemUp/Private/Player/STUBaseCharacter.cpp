@@ -45,6 +45,7 @@ void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     {
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASTUBaseCharacter::Move);
         EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASTUBaseCharacter::Look);
+        EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ASTUBaseCharacter::Jump);
     }
     // Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
@@ -84,3 +85,4 @@ void ASTUBaseCharacter::Look(const FInputActionValue& Value)
         AddControllerPitchInput(LookAxisVector.Y);
     }
 }
+
