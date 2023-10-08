@@ -3,6 +3,7 @@
 #include "Player/STUBaseCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
@@ -21,6 +22,11 @@ ASTUBaseCharacter::ASTUBaseCharacter()
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
     CameraComponent->bUsePawnControlRotation = true;
+}
+
+inline bool ASTUBaseCharacter::IsRunning() const
+{
+    return ChracterRun;
 }
 
 // Called when the game starts or when spawned
@@ -46,6 +52,9 @@ void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASTUBaseCharacter::Move);
         EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASTUBaseCharacter::Look);
         EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ASTUBaseCharacter::Jump);
+        EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &ASTUBaseCharacter::StartRun);
+        EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Canceled, this, &ASTUBaseCharacter::EndRun);
+        EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &ASTUBaseCharacter::EndRun);
     }
     // Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
@@ -85,4 +94,22 @@ void ASTUBaseCharacter::Look(const FInputActionValue& Value)
         AddControllerPitchInput(LookAxisVector.Y);
     }
 }
+
+void ASTUBaseCharacter::StartRun(const FInputActionValue& Value) {
+    if (Controller != nullptr)
+    {
+        GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+        ASTUBaseCharacter::SetChracterRunning(true);
+    }
+}
+
+void ASTUBaseCharacter::EndRun(const FInputActionValue& Value)
+{
+    if (Controller != nullptr)
+    {
+        GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+        ASTUBaseCharacter::SetChracterRunning(false);
+    }
+}
+
 
