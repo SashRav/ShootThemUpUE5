@@ -65,7 +65,6 @@ private:
     bool IsMovingForward = false;
     // Functions for start and stop running animatons
     void OnStartRunning(const FInputActionValue& Value);
-    void OnRunning(const FInputActionValue& Value);
     void OnEndRunning(const FInputActionValue& Value);
 
     // Called when moving action is triggered

@@ -51,7 +51,6 @@ void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
         EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &ASTUBaseCharacter::OnStartRunning);
         EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Canceled, this, &ASTUBaseCharacter::OnEndRunning);
         EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &ASTUBaseCharacter::OnEndRunning);
-        EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Triggered, this, &ASTUBaseCharacter::OnRunning);
     }
     // Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
@@ -104,23 +103,11 @@ void ASTUBaseCharacter::OnStartRunning(const FInputActionValue& Value)
     }
 }
 
-void ASTUBaseCharacter::OnRunning(const FInputActionValue& Value)
-{
-    if (Controller != nullptr)
-    {
-        // if (IsRunning())
-        //     GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
-        // else
-        //     GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-    }
-}
-
 void ASTUBaseCharacter::OnEndRunning(const FInputActionValue& Value)
 {
     if (Controller != nullptr)
     {
         ChracterTryRun = false;
-        //  GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
     }
 }
 
