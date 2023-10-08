@@ -3,13 +3,14 @@
 #include "Player/STUBaseCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/STUCharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 
 // Sets default values
-ASTUBaseCharacter::ASTUBaseCharacter()
+ASTUBaseCharacter::ASTUBaseCharacter(const FObjectInitializer& ObjInit)
+    : Super(ObjInit.SetDefaultSubobjectClass<USTUCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -22,11 +23,6 @@ ASTUBaseCharacter::ASTUBaseCharacter()
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
     CameraComponent->bUsePawnControlRotation = true;
-}
-
-inline bool ASTUBaseCharacter::IsRunning() const
-{
-    return ChracterRun;
 }
 
 // Called when the game starts or when spawned
@@ -52,9 +48,10 @@ void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASTUBaseCharacter::Move);
         EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASTUBaseCharacter::Look);
         EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ASTUBaseCharacter::Jump);
-        EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &ASTUBaseCharacter::StartRun);
-        EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Canceled, this, &ASTUBaseCharacter::EndRun);
-        EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &ASTUBaseCharacter::EndRun);
+        EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &ASTUBaseCharacter::OnStartRunning);
+        EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Canceled, this, &ASTUBaseCharacter::OnEndRunning);
+        EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &ASTUBaseCharacter::OnEndRunning);
+        EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Triggered, this, &ASTUBaseCharacter::OnRunning);
     }
     // Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
@@ -79,6 +76,10 @@ void ASTUBaseCharacter::Move(const FInputActionValue& Value)
 
         // add movement
         AddMovementInput(ForwardDirection, MovementVector.Y);
+        if (MovementVector.Y > 0.0f)
+            IsMovingForward = true;
+        else
+            IsMovingForward = false;
         AddMovementInput(RightDirection, MovementVector.X);
     }
 }
@@ -95,21 +96,35 @@ void ASTUBaseCharacter::Look(const FInputActionValue& Value)
     }
 }
 
-void ASTUBaseCharacter::StartRun(const FInputActionValue& Value) {
-    if (Controller != nullptr)
-    {
-        GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
-        ASTUBaseCharacter::SetChracterRunning(true);
-    }
-}
-
-void ASTUBaseCharacter::EndRun(const FInputActionValue& Value)
+void ASTUBaseCharacter::OnStartRunning(const FInputActionValue& Value)
 {
     if (Controller != nullptr)
     {
-        GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-        ASTUBaseCharacter::SetChracterRunning(false);
+        ChracterTryRun = true;
     }
 }
 
+void ASTUBaseCharacter::OnRunning(const FInputActionValue& Value)
+{
+    if (Controller != nullptr)
+    {
+        // if (IsRunning())
+        //     GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+        // else
+        //     GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+    }
+}
 
+void ASTUBaseCharacter::OnEndRunning(const FInputActionValue& Value)
+{
+    if (Controller != nullptr)
+    {
+        ChracterTryRun = false;
+        //  GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+    }
+}
+
+inline bool ASTUBaseCharacter::IsRunning() const
+{
+    return ChracterTryRun && IsMovingForward && !GetVelocity().IsZero();
+}
