@@ -1,6 +1,7 @@
 // Shoot Them Up game, All Rights Reserved.
 
 #include "Components/STUHealthComponent.h"
+#include "GameFramework/Actor.h"
 
 // Sets default values for this component's properties
 USTUHealthComponent::USTUHealthComponent()
@@ -16,4 +17,16 @@ void USTUHealthComponent::BeginPlay()
     Super::BeginPlay();
 
     Health = MaxHealth;
+
+    AActor* ComponentOwner = GetOwner();
+    if (ComponentOwner)
+    {
+        ComponentOwner->OnTakeAnyDamage.AddDynamic(this, &USTUHealthComponent::OnTakeAnyDamageHandle);
+    }
+}
+
+void USTUHealthComponent::OnTakeAnyDamageHandle(
+    AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+    Health -= Damage;
 }
