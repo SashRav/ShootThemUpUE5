@@ -41,12 +41,14 @@ public:
     // Sets default values for this character's properties
     ASTUBaseCharacter(const FObjectInitializer& ObjInit);
 
-    UFUNCTION(BlueprintCallable, Category = "Character")
+    UFUNCTION(BlueprintCallable, Category = "Movement")
     bool IsRunning() const;
 
+    UFUNCTION(BlueprintCallable, Category = "Movement")
+    float GetMovementDirection() const;
+
 protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    UCameraComponent* CameraComponent;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components") UCameraComponent* CameraComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USpringArmComponent* SpringArmComponent;
@@ -54,13 +56,11 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-
 public:
     // Called to bind functionality to input
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
-    
     bool ChracterTryRun = false;
     bool IsMovingForward = false;
     // Functions for start and stop running animatons
