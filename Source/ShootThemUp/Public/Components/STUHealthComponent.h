@@ -29,6 +29,18 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "0.0", ClampMax = "1000.0"))
     float MaxHealth = 100.0f;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+    bool IsAutoHeal = false;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "0.0", ClampMax = "100.0"))
+    float AutoHealDelay = 1.0f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "0.0", ClampMax = "1000.0"))
+    float AutoHealModifire = 1.0f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "0.0", ClampMax = "1000.0"))
+    float AutoHealTick = 1.0f;
+
     virtual void BeginPlay() override;
 
 private:
@@ -38,5 +50,9 @@ private:
     void OnTakeAnyDamageHandle(
         AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
+    void EnableAutoHeal();
+    void AutoHealUpdateTick();
 
+    FTimerHandle AutoHealEnabledHandle;
+    FTimerHandle AutoHealTickHandle;
 };

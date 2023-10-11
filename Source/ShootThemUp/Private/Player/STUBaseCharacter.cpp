@@ -3,6 +3,7 @@
 #include "Player/STUBaseCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/Controller.h"
 #include "Components/STUCharacterMovementComponent.h"
 #include "Components/STUHealthComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -147,6 +148,10 @@ void ASTUBaseCharacter::OnDeath()
     GetEnhancedInputSubsystem()->RemoveMappingContext(DefaultMappingContext);
 
     SetLifeSpan(5.0f);
+    if (Controller)
+    {
+        Controller->ChangeState(NAME_Spectating);
+    }
 }
 
 void ASTUBaseCharacter::OnHealthChanged(float Health)

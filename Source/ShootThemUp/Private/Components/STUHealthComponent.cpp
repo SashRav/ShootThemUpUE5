@@ -36,8 +36,27 @@ void USTUHealthComponent::OnTakeAnyDamageHandle(
     Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
     OnHealthChanged.Broadcast(Health);
 
+    GetWorld()->GetTimerManager().ClearTimer(AutoHealEnabledHandle);
+    GetWorld()->GetTimerManager().ClearTimer(AutoHealTickHandle);
+
+
+    if (IsAutoHeal)
+        GetWorld()->GetTimerManager().SetTimer(AutoHealEnabledHandle, this, &USTUHealthComponent::EnableAutoHeal, AutoHealDelay, false);
+
     if (IsDead())
     {
         OnDeath.Broadcast();
     }
+}
+
+void USTUHealthComponent::EnableAutoHeal()
+{
+    GetWorld()->GetTimerManager().SetTimer(AutoHealTickHandle, this, &USTUHealthComponent::AutoHealUpdateTick, AutoHealTick, true);
+}
+
+void USTUHealthComponent::AutoHealUpdateTick()
+{
+    Health = FMath::Clamp(Health + AutoHealModifire, 0.0f, MaxHealth);
+    UE_LOG(LogHealthComponent, Display, TEXT("Delay"));
+    OnHealthChanged.Broadcast(Health);
 }
