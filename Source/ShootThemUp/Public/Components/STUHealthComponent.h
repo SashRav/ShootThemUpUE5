@@ -20,26 +20,29 @@ public:
     float GetHealth() const { return Health; }
 
     UFUNCTION(BlueprintCallable)
-    bool IsDead() { return Health <= 0.0f; }
+    bool IsDead() { return FMath::IsNearlyZero(Health); }
 
     FOnDeath OnDeath;
     FOnHealthChanged OnHealthChanged;
 
 protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "0.0", ClampMax = "1000.0"))
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0.0", ClampMax = "1000.0"))
     float MaxHealth = 100.0f;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AutoHeal")
     bool IsAutoHeal = false;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "0.0", ClampMax = "100.0"))
-    float AutoHealDelay = 1.0f;
+    UPROPERTY(
+        EditDefaultsOnly, BlueprintReadWrite, Category = "AutoHeal", meta = (ClampMin = "0.0", ClampMax = "100.0", EditCondition = "IsAutoHeal"))
+    float AutoHealDelay = 3.0f;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "0.0", ClampMax = "1000.0"))
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AutoHeal",
+        meta = (ClampMin = "0.0", ClampMax = "1000.0", EditCondition = "IsAutoHeal"))
     float AutoHealModifire = 1.0f;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (ClampMin = "0.0", ClampMax = "1000.0"))
-    float AutoHealTick = 1.0f;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AutoHeal",
+        meta = (ClampMin = "0.0", ClampMax = "1000.0", EditCondition = "IsAutoHeal"))
+    float AutoHealTick = 0.5f;
 
     virtual void BeginPlay() override;
 
@@ -51,8 +54,7 @@ private:
         AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
     void EnableAutoHeal();
-    void AutoHealUpdateTick();
+    void SetHealth(float NewHealth);
 
     FTimerHandle AutoHealEnabledHandle;
-    FTimerHandle AutoHealTickHandle;
 };

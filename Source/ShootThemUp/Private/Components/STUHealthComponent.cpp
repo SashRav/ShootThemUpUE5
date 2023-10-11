@@ -18,8 +18,7 @@ void USTUHealthComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    Health = MaxHealth;
-    OnHealthChanged.Broadcast(Health);
+    SetHealth(MaxHealth);
 
     AActor* ComponentOwner = GetOwner();
     if (ComponentOwner)
@@ -31,32 +30,31 @@ void USTUHealthComponent::BeginPlay()
 void USTUHealthComponent::OnTakeAnyDamageHandle(
     AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-    if (Damage <= 0.0f || IsDead())
+    if (Damage <= 0.0f || IsDead() || !GetWorld())
         return;
-    Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
-    OnHealthChanged.Broadcast(Health);
-
+    SetHealth(Health - Damage);
     GetWorld()->GetTimerManager().ClearTimer(AutoHealEnabledHandle);
-    GetWorld()->GetTimerManager().ClearTimer(AutoHealTickHandle);
-
-
-    if (IsAutoHeal)
-        GetWorld()->GetTimerManager().SetTimer(AutoHealEnabledHandle, this, &USTUHealthComponent::EnableAutoHeal, AutoHealDelay, false);
 
     if (IsDead())
     {
         OnDeath.Broadcast();
     }
+
+    if (IsAutoHeal)
+        GetWorld()->GetTimerManager().SetTimer(
+            AutoHealEnabledHandle, this, &USTUHealthComponent::EnableAutoHeal, AutoHealTick, true, AutoHealDelay);
 }
 
 void USTUHealthComponent::EnableAutoHeal()
 {
-    GetWorld()->GetTimerManager().SetTimer(AutoHealTickHandle, this, &USTUHealthComponent::AutoHealUpdateTick, AutoHealTick, true);
+    SetHealth(Health + AutoHealModifire);
+
+    if (FMath::IsNearlyEqual(Health,MaxHealth) && GetWorld())
+        GetWorld()->GetTimerManager().ClearTimer(AutoHealEnabledHandle);
 }
 
-void USTUHealthComponent::AutoHealUpdateTick()
+void USTUHealthComponent::SetHealth(float NewHealth)
 {
-    Health = FMath::Clamp(Health + AutoHealModifire, 0.0f, MaxHealth);
-    UE_LOG(LogHealthComponent, Display, TEXT("Delay"));
+    Health = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
     OnHealthChanged.Broadcast(Health);
 }
