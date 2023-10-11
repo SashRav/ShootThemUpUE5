@@ -12,6 +12,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class USTUHealthComponent;
 class UTextRenderComponent;
+class UEnhancedInputLocalPlayerSubsystem;
 struct FInputActionValue;
 
 
@@ -63,10 +64,12 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTextRenderComponent* HealthTextComponent;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* DeathAnimMontage;
 
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
-    virtual void Tick(float Deltatime) override;
+   // virtual void Tick(float Deltatime) override;
 
 public:
     // Called to bind functionality to input
@@ -83,6 +86,8 @@ private:
     void Move(const FInputActionValue& Value);
     // Called when player moving mouse
     void Look(const FInputActionValue& Value);
-
-   
+    // Called when player is dead
+    void OnDeath();
+    void OnHealthChanged(float Health);
+    UEnhancedInputLocalPlayerSubsystem* GetEnhancedInputSubsystem();
 };

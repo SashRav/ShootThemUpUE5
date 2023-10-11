@@ -10,7 +10,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 
-
 DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All);
 
 // Sets default values
@@ -29,11 +28,10 @@ ASTUBaseCharacter::ASTUBaseCharacter(const FObjectInitializer& ObjInit)
     CameraComponent->SetupAttachment(SpringArmComponent);
     CameraComponent->bUsePawnControlRotation = true;
 
-    HealthComponent =  CreateDefaultSubobject<USTUHealthComponent>("HelathComponent");
+    HealthComponent = CreateDefaultSubobject<USTUHealthComponent>("HelathComponent");
 
     HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
     HealthTextComponent->SetupAttachment(GetRootComponent());
-
 }
 
 // Called when the game starts or when spawned
@@ -41,21 +39,17 @@ void ASTUBaseCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-    {
-        if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
-                ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-        {
-            Subsystem->AddMappingContext(DefaultMappingContext, 0);
-        }
-    }
+    GetEnhancedInputSubsystem()->AddMappingContext(DefaultMappingContext, 0);
+
+    OnHealthChanged(HealthComponent->GetHealth());
+    HealthComponent->OnDeath.AddUObject(this, &ASTUBaseCharacter::OnDeath);
+    HealthComponent->OnHealthChanged.AddUObject(this, &ASTUBaseCharacter::OnHealthChanged);
 }
 
-void ASTUBaseCharacter::Tick(float Deltatime) {
-    Super::Tick(Deltatime);
-    const auto Health = HealthComponent->GetHealth();
-    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
-}
+//void ASTUBaseCharacter::Tick(float Deltatime)
+//{
+//    Super::Tick(Deltatime);
+//}
 
 // Called to bind functionality to input
 void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -112,8 +106,6 @@ void ASTUBaseCharacter::Look(const FInputActionValue& Value)
     }
 }
 
-
-
 void ASTUBaseCharacter::OnStartRunning(const FInputActionValue& Value)
 {
     if (Controller != nullptr)
@@ -144,4 +136,34 @@ float ASTUBaseCharacter::GetMovementDirection() const
     const auto CrossProduct = FVector::CrossProduct(GetActorForwardVector(), VelocityNormal);
     const auto Degrees = FMath::RadiansToDegrees(AngleBetween);
     return CrossProduct.IsZero() ? Degrees : Degrees * FMath::Sign(CrossProduct.Z);
+}
+
+void ASTUBaseCharacter::OnDeath()
+{
+    UE_LOG(BaseCharacterLog, Display, TEXT("Character %s is dead"), *GetName());
+
+    PlayAnimMontage(DeathAnimMontage);
+
+    GetEnhancedInputSubsystem()->RemoveMappingContext(DefaultMappingContext);
+
+    SetLifeSpan(5.0f);
+}
+
+void ASTUBaseCharacter::OnHealthChanged(float Health)
+{
+    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+}
+
+UEnhancedInputLocalPlayerSubsystem* ASTUBaseCharacter::GetEnhancedInputSubsystem()
+{
+    if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+    {
+        if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+                ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+        {
+            return Subsystem;
+        }
+        return nullptr;
+    }
+    return nullptr;
 }
